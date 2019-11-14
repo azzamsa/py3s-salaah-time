@@ -1,5 +1,7 @@
 # Salaah Time for Py3status
 
+Shows next salaah time in py3status
+
 ## Docs
 
 See the docs string
@@ -19,8 +21,10 @@ salaah_time {
 ```
 
 ## Sample Output
+
 {'full_text': 'fajr 04:05 AM'}
 
+![image](https://user-images.githubusercontent.com/17734314/68861320-e6738d80-071d-11ea-978f-99e83b50edc2.png)
 
 ## Credit:
 
