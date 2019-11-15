@@ -24,6 +24,9 @@ Notes:
    1 = Shafii
    2 = Hanafi
 
+   This module depends on pyIslam library <https://github.com/abougouffa/pyIslam>, make sure it's installed.
+   Use `pip install islam` to install it.
+
 Format placeholders:
     {format} format for salaah_time
 
