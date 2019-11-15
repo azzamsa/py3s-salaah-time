@@ -148,7 +148,8 @@ class Py3status:
 
     def _check_urgency(self, thresholds, remaining):
         urgency = False
-        if remaining.total_seconds() < thresholds:
+        remains = remaining.total_seconds()
+        if remains < thresholds and remains > 0:
             urgency = True
 
         return urgency
