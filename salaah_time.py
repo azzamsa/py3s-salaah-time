@@ -61,7 +61,7 @@ def get_higher_times(salaahs_time, current_time):
 
     for salaah in salaahs_time:
         time_ = salaahs_time[salaah]
-        dt_time = datetime.combine(date.today(), time_)
+        dt_time = dt_combine(time_)
 
         if dt_time > current_time:
             higher_times.append(time_)
@@ -74,8 +74,7 @@ def get_closest_time(higher_times, current_time):
 
     if higher_times:
         closest_time = min(
-            higher_times,
-            key=lambda x: abs(datetime.combine(date.today(), x) - current_time),
+            higher_times, key=lambda x: abs(dt_combine(x) - current_time)
         )
     return closest_time
 
@@ -205,5 +204,7 @@ if __name__ == "__main__":
     Run module in test mode.
     """
     from py3status.module_test import module_test
+
+    Py3status.button = 0
 
     module_test(Py3status)
