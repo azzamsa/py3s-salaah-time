@@ -4,6 +4,7 @@ Shows next salaah time in py3status
 
 ## Feature
 
+- Not relying on internet connection
 - Show next salaah time
 - Show remaining salaah time (toggled with mouse click)
 - Change module color when reached thresholds of remaining time
