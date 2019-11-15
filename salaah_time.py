@@ -10,6 +10,7 @@ Configuration parameters:
     asr_fiqh: Asr madhab (default 1)
     format_time: The format for time-related placeholders. May use any Python strftime directives for times. (default ‘%I:%M %p’)
     cache_timeout: refresh interval for this module, default 15 minutes (default 900)
+    thresholds = change module color to urgent when remaining time reached the threshold, default 30 minutes (default 1800)
 
 Notes:
    the Fajr and Ishaa reference:
@@ -22,8 +23,6 @@ Notes:
    the Asr Madhab:
    1 = Shafii
    2 = Hanafi
-
-   This module depends on pyIslam library <https://github.com/abougouffa/pyIslam>, make sure it's installed.
 
 Format placeholders:
     {format} format for salaah_time
@@ -130,6 +129,18 @@ class Py3status:
     fajr_isha_method = 3
     asr_fiqh = 1
     cache_timeout = 900
+    thresholds = 1800
+
+    def _check_urgency(self, thresholds, upcoming_salaah_time):
+        urgency = False
+        dt_now = dt_combine(datetime.now().time())
+        dt_upcoming_salaah = dt_combine(upcoming_salaah_time)
+        time_delta = dt_upcoming_salaah - dt_now
+
+        if time_delta.total_seconds() < thresholds:
+            urgency = True
+
+        return urgency
 
     def salaah_time(self):
         upcoming_salaah = _main(
@@ -143,11 +154,18 @@ class Py3status:
         salaah_time_ = upcoming_salaah[1]
 
         salaah_time_fmt = salaah_time_.strftime(self.format_time)
-        data = {"salaah_name": salaah_name, "salaah_time": salaah_time_fmt}
-        salaah = self.py3.safe_format(self.format, data)
+        salaah_data = {"salaah_name": salaah_name, "salaah_time": salaah_time_fmt}
+
+        urgency = self._check_urgency(self.thresholds, salaah_time_)
+        color = None
+        if urgency:
+            color = self.py3.COLOR_BAD
+
+        salaah = self.py3.safe_format(self.format, salaah_data)
 
         return {
             "full_text": salaah,
+            "color": color,
             "cached_until": self.py3.time_in(self.cache_timeout),
         }
 
