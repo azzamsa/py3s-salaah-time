@@ -138,15 +138,11 @@ class Py3status:
     asr_fiqh = 1
     cache_timeout = 900
     thresholds = 1800
-    button = 1
+    button = 0
 
-    def _check_urgency(self, thresholds, upcoming_salaah_time):
+    def _check_urgency(self, thresholds, remaining):
         urgency = False
-        dt_now = dt_combine(datetime.now().time())
-        dt_upcoming_salaah = dt_combine(upcoming_salaah_time)
-        time_delta = dt_upcoming_salaah - dt_now
-
-        if time_delta.total_seconds() < thresholds:
+        if remaining.total_seconds() < thresholds:
             urgency = True
 
         return urgency
@@ -157,7 +153,7 @@ class Py3status:
         remaining_fmt = f"{remaining_hour}h"
         if remaining_hour < 1:
             remaining_fmt = f"{remaining_minutes}m"
-        print(remaining_fmt)
+
         return remaining_fmt
 
     def salaah_time(self):
@@ -170,21 +166,24 @@ class Py3status:
         )
         salaah_name = upcoming_salaah[0]
         salaah_time_ = upcoming_salaah[1]
+        remaining_time = get_remaining_time(salaah_time_)
 
         if self.button == 1:
-            remaining = get_remaining_time(salaah_time_)
-            remaining_fmt = self._format_remaining_time(remaining)
+            # show remaining time
+            remaining_fmt = self._format_remaining_time(remaining_time)
             salaah_time_fmt = remaining_fmt
         if self.button == 0:
+            # show regular time
             salaah_time_fmt = salaah_time_.strftime(self.format_time)
+
+        is_urgent = self._check_urgency(self.thresholds, remaining_time)
 
         salaah_data = {"salaah_name": salaah_name, "salaah_time": salaah_time_fmt}
         salaah = self.py3.safe_format(self.format, salaah_data)
-        # urgency = self._check_urgency(self.thresholds, salaah_time_)
 
         color = None
-        # if urgency:
-        #     color = self.py3.COLOR_BAD
+        if is_urgent:
+            color = self.py3.COLOR_BAD
 
         return {
             "full_text": salaah,
