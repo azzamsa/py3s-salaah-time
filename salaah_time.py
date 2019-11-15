@@ -56,27 +56,26 @@ def dt_combine(time_):
     return dt_time
 
 
-def get_higher_times(salaahs_time):
+def get_higher_times(salaahs_time, current_time):
     higher_times = []
-    dt_now = dt_combine(datetime.now().time())
 
     for salaah in salaahs_time:
         time_ = salaahs_time[salaah]
         dt_time = datetime.combine(date.today(), time_)
 
-        if dt_time > dt_now:
+        if dt_time > current_time:
             higher_times.append(time_)
 
     return higher_times
 
 
-def get_closest_time(higher_times):
+def get_closest_time(higher_times, current_time):
     closest_time = None
-    dt_now = dt_combine(datetime.now().time())
 
     if higher_times:
         closest_time = min(
-            higher_times, key=lambda x: abs(datetime.combine(date.today(), x) - dt_now)
+            higher_times,
+            key=lambda x: abs(datetime.combine(date.today(), x) - current_time),
         )
     return closest_time
 
@@ -109,23 +108,28 @@ def get_upcoming_salaah(salaahs_time, time_key):
     return upcoming_salaah
 
 
-def get_remaining_time(upcoming_salaah_time):
-    dt_now = dt_combine(datetime.now().time())
+def get_remaining_time(upcoming_salaah_time, current_time):
     dt_upcoming_salaah = dt_combine(upcoming_salaah_time)
-    remaining_time = dt_upcoming_salaah - dt_now
+    remaining_time = dt_upcoming_salaah - current_time
 
     return remaining_time
 
 
 def _main(longitude, latitude, timezone, fajr_isha_method, asr_fiqh):
+    current_time = dt_combine(datetime.now().time())
     salaahs_time = get_salaahs_time(
         longitude, latitude, timezone, fajr_isha_method, asr_fiqh
     )
-    higher_times = get_higher_times(salaahs_time)
-    closest_time = get_closest_time(higher_times)
+
+    higher_times = get_higher_times(salaahs_time, current_time)
+    closest_time = get_closest_time(higher_times, current_time)
 
     upcoming_salaah = get_upcoming_salaah(salaahs_time, closest_time)
-    return upcoming_salaah
+    salaah_name = upcoming_salaah[0]
+    salaah_time_ = upcoming_salaah[1]
+    remaining_time = get_remaining_time(salaah_time_, current_time)
+
+    return salaah_name, salaah_time_, remaining_time
 
 
 class Py3status:
@@ -164,9 +168,7 @@ class Py3status:
             self.fajr_isha_method,
             self.asr_fiqh,
         )
-        salaah_name = upcoming_salaah[0]
-        salaah_time_ = upcoming_salaah[1]
-        remaining_time = get_remaining_time(salaah_time_)
+        salaah_name, salaah_time_, remaining_time = upcoming_salaah
 
         if self.button == 1:
             # show remaining time
