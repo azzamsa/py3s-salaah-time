@@ -109,6 +109,14 @@ def get_upcoming_salaah(salaahs_time, time_key):
     return upcoming_salaah
 
 
+def get_remaining_time(upcoming_salaah_time):
+    dt_now = dt_combine(datetime.now().time())
+    dt_upcoming_salaah = dt_combine(upcoming_salaah_time)
+    remaining_time = dt_upcoming_salaah - dt_now
+
+    return remaining_time
+
+
 def _main(longitude, latitude, timezone, fajr_isha_method, asr_fiqh):
     salaahs_time = get_salaahs_time(
         longitude, latitude, timezone, fajr_isha_method, asr_fiqh
@@ -130,6 +138,7 @@ class Py3status:
     asr_fiqh = 1
     cache_timeout = 900
     thresholds = 1800
+    button = 1
 
     def _check_urgency(self, thresholds, upcoming_salaah_time):
         urgency = False
@@ -142,6 +151,15 @@ class Py3status:
 
         return urgency
 
+    def _format_remaining_time(self, remaining):
+        remaining_hour = remaining.seconds // 3600
+        remaining_minutes = (remaining.seconds // 60) % 60
+        remaining_fmt = f"{remaining_hour}h"
+        if remaining_hour < 1:
+            remaining_fmt = f"{remaining_minutes}m"
+        print(remaining_fmt)
+        return remaining_fmt
+
     def salaah_time(self):
         upcoming_salaah = _main(
             self.longitude,
@@ -153,21 +171,32 @@ class Py3status:
         salaah_name = upcoming_salaah[0]
         salaah_time_ = upcoming_salaah[1]
 
-        salaah_time_fmt = salaah_time_.strftime(self.format_time)
+        if self.button == 1:
+            remaining = get_remaining_time(salaah_time_)
+            remaining_fmt = self._format_remaining_time(remaining)
+            salaah_time_fmt = remaining_fmt
+        if self.button == 0:
+            salaah_time_fmt = salaah_time_.strftime(self.format_time)
+
         salaah_data = {"salaah_name": salaah_name, "salaah_time": salaah_time_fmt}
-
-        urgency = self._check_urgency(self.thresholds, salaah_time_)
-        color = None
-        if urgency:
-            color = self.py3.COLOR_BAD
-
         salaah = self.py3.safe_format(self.format, salaah_data)
+        # urgency = self._check_urgency(self.thresholds, salaah_time_)
+
+        color = None
+        # if urgency:
+        #     color = self.py3.COLOR_BAD
 
         return {
             "full_text": salaah,
             "color": color,
             "cached_until": self.py3.time_in(self.cache_timeout),
         }
+
+    def on_click(self, event):
+        if self.button == 0:
+            self.button = 1
+        else:
+            self.button = 0
 
 
 if __name__ == "__main__":
