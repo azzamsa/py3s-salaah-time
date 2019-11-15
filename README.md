@@ -9,6 +9,12 @@ Shows next salaah time in py3status
 - Show remaining salaah time (toggled with mouse click)
 - Change module color when reached thresholds of remaining time
 
+## Installation
+
+Put this file in one of [py3status custom module location][1] such as
+`~/.config/i3status/py3status`, then add proper configuration in your i3status
+config.
+
 ## Docs
 
 See the docs string
