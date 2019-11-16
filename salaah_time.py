@@ -47,7 +47,9 @@ salaah_time {
 @license GPLv3 <https://www.gnu.org/licenses/gpl-3.0.txt>
 
 SAMPLE OUTPUT
-{'full_text': 'fajr 04:05 AM'}
+{'full_text': 'dohr:11:37 AM'}
+
+{'full_text': 'dohr:3h'}
 """
 
 from datetime import date, datetime
