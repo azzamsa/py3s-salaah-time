@@ -1,3 +1,5 @@
+> 📢 **PSA**: A successor was born: [Bilal](https://sr.ht/~azzamsa/Bilal/)
+
 # Salaah Time for Py3status
 
 Shows next salaah time in py3status
